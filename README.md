@@ -4,11 +4,11 @@
 
 Include plugin css and javascript files in the head after semantic-ui.
 ```html
-<link rel="stylesheet" href="semantic-ui/semantic.min.css" />
+<link rel="stylesheet" href="semantic.min.css" />
 <link rel="stylesheet" href="semantic-ui-tree-picker.css" />
 
 <script type="text/javascript" src="jquery.min.js"></script>
-<script type="text/javascript" src="semantic-ui/semantic.min.js"></script>
+<script type="text/javascript" src="semantic.min.js"></script>
 <script type="text/javascript" src="semantic-ui-tree-picker.js"></script>
 ```
 
@@ -20,7 +20,7 @@ Define container for widget. Styling is up to you.
   $(document).ready(function(){
     $('#Example1').treePicker({
       data: './sample_data.json', // URL for retrieving tree data
-      name: 'Regions' // Name for widget
+      name: 'The Menu' // Name for widget
       onSubmit: function(nodes) { console.log(nodes); } // Submit callback
     })
   });
