@@ -1,0 +1,86 @@
+.ui.tree-picker.modal {
+  .header {
+    border-bottom: 1px solid rgba(0,0,0,0.2);
+    .menu {
+      float: right;
+      margin-top: -3px;
+      .item.highlighted {
+        color: #2b9289;
+      }
+    }
+  }
+  .search {
+    background: #ffdc72;
+    padding: 7px 30px;
+    .icon {
+      background: none;
+    }
+    input {
+      background: rgba(255,255,255,0.8);
+    }
+  }
+  .tree, .list {
+    .node {
+      padding: 0 0 5px;
+      >.head {
+        font-size: 16px;
+        .icon, .name {
+          cursor: pointer;
+        }
+        a.name {
+          color: #333;
+        }
+        .add.icon, .minus.icon {
+          color: #aaa;
+          &:hover {
+            color: #888;
+          }
+        }
+        .minus.icon {
+          display: none;
+        }
+        .checkmark.icon {
+          display: none;
+        }
+
+      }
+      .content {
+        display: none;
+        border-left: 1px dotted #ccc;
+        margin-left: 9px;
+        padding-left: 10px;
+      }
+      &.childless {
+        >.head {
+          .add.circle.icon {
+            visibility: hidden;
+          }
+        }
+      }
+      &.picked {
+        >.head {
+          .name {
+            color: #2b9289;
+          }
+          .checkmark.icon {
+            color: #2b9289;
+            display: inline-block;
+          }
+        }
+      }
+      &.opened {
+        >.head {
+          .add.circle.icon {
+            display: none;
+          }
+          .minus.icon {
+            display: inline-block;
+          }
+        }
+      }
+      strong.search-query {
+        background: #ffdc72
+      }
+    }
+  }
+}

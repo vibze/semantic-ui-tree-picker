@@ -1,0 +1,22 @@
+{
+  "name": "semantic-ui-tree-picker",
+  "description": "A modal tree picker",
+  "version": "0.0.1",
+
+  "main": "treecker.js",
+
+  "author": {
+    "name": "Viktor Ten",
+    "email": "ten.viktor@gmail.com"
+  },
+
+  "ignore": [
+    "**/.*",
+    "bower_components",
+    "node_modules"
+  ],
+
+  "dependencies": {
+    "semantic-ui": "~1.11.6"
+  }
+}
