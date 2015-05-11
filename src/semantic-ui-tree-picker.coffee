@@ -3,18 +3,6 @@ $.fn.treePicker = (options) ->
   picked = []
   nodes = []
   tabs = {}
-
-  widget.html(options.name)
-  widget.on('click', (e) ->
-    modal.modal('show')
-    loadNodes(options.data, {}, (nodes) ->
-      $('.ui.active.dimmer', modal).removeClass('active')
-      tree = renderTree(nodes, height: '400px', overflowY: 'scroll')
-      tabs.tree.html(tree)
-      initializeTree(tree)
-    )
-  )
-
   modal = $("""
     <div class="ui tree-picker modal">
       <i class="close icon"></i>
@@ -62,17 +50,39 @@ $.fn.treePicker = (options) ->
     search: $('.search-tab', modal)
     picked: $('.picked-tab', modal)
 
-  $('.actions .accept', modal).on('click', (e) ->
-    widget.html("#{options.name} (Выбрано #{picked.length})")
-    modal.modal('close')
+  initialize = () ->
+    widget.html(options.name)
+    widget.on('click', (e) ->
+      modal.modal('show')
+      loadNodes(options.data, {}, (nodes) ->
+        $('.ui.active.dimmer', modal).removeClass('active')
 
-    if options.onSubmit
-      options.onSubmit(picked)
-  )
+        if widget.attr("data-picked-ids")
+          options.picked = widget.attr("data-picked-ids").split(",")
 
-  $('.menu .tree', modal).on('click', (e) -> showTree())
-  $('.menu .picked', modal).on('click', (e)-> showPicked())
-  $('.search input', modal).on('keyup', (e) -> showSearch($(@).val()))
+        if options.picked
+          for id in options.picked
+            searchResult = recursiveNodeSearch(nodes, (node) -> "#{node.id}" == "#{id}")
+            if searchResult.length
+              picked.push(searchResult[0])
+
+        tree = renderTree(nodes, height: '400px', overflowY: 'scroll')
+        tabs.tree.html(tree)
+        initializeTree(tree)
+      )
+    )
+
+    $('.actions .accept', modal).on('click', (e) ->
+      widget.html("#{options.name} (Выбрано #{picked.length} элементов)")
+      modal.modal('close')
+
+      if options.onSubmit
+        options.onSubmit(picked)
+    )
+
+    $('.menu .tree', modal).on('click', (e) -> showTree())
+    $('.menu .picked', modal).on('click', (e)-> showPicked())
+    $('.search input', modal).on('keyup', (e) -> showSearch($(@).val()))
 
   loadNodes = (url, params={}, success) ->
     $.get(url, params, (response) ->
@@ -88,7 +98,7 @@ $.fn.treePicker = (options) ->
 
   showSearch = (query) ->
     if query isnt null and query != ""
-      foundNodes = recursiveNodeSearch(nodes, query)
+      foundNodes = recursiveNodeSearch(nodes, (node) -> node.name.toLowerCase().indexOf(query.toLowerCase()) > -1)
       list = renderList(foundNodes, height: '400px', overflowY: 'scroll')
 
       $('.menu .item', modal).removeClass('active')
@@ -170,6 +180,8 @@ $.fn.treePicker = (options) ->
           node.toggleClass('opened')
           content.slideToggle()
         )
+
+      updatePickedIds()
     )
 
   nodeClicked = (node) ->
@@ -192,7 +204,7 @@ $.fn.treePicker = (options) ->
     $(".node[data-id=#{id}]", modal).removeClass('picked')
 
   nodeIsPicked = (node) ->
-    picked.filter((n) -> n.id is node.attr('data-id')).length
+    picked.filter((n) -> "#{n.id}" is node.attr('data-id')).length
 
   updatePickedIds = ->
     widget.attr('data-picked-ids', picked.map((n) -> n.id))
@@ -203,14 +215,15 @@ $.fn.treePicker = (options) ->
       count.closest('.item').removeClass('highlighted')
       count.html("")
 
-  recursiveNodeSearch = (nodes, query) ->
-    query = query.toLowerCase()
+  recursiveNodeSearch = (nodes, comparator) ->
     results = []
 
     for node in nodes
-      if node.name.toLowerCase().indexOf(query) > -1
+      if comparator(node)
         results.push(id: node.id, name: node.name)
       if node.nodes
-        results = results.concat(recursiveNodeSearch(node.nodes, query))
+        results = results.concat(recursiveNodeSearch(node.nodes, comparator))
 
     results
+
+  initialize()

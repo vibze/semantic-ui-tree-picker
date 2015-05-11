@@ -20,7 +20,8 @@ Define container for widget. Styling is up to you.
   $(document).ready(function(){
     $('#Example1').treePicker({
       data: './sample_data.json', // URL for retrieving tree data
-      name: 'The Menu' // Name for widget
+      name: 'The Menu', // Name for widget
+      picked: [110,120], // Ids of pre-picked nodes
       onSubmit: function(nodes) { console.log(nodes); } // Submit callback
     })
   });

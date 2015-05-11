@@ -1,24 +1,10 @@
 (function() {
   $.fn.treePicker = function(options) {
-    var count, initializeTree, loadNodes, modal, nodeClicked, nodeIsPicked, nodes, pickNode, picked, recursiveNodeSearch, renderList, renderTree, showPicked, showSearch, showTree, tabs, unpickNode, updatePickedIds, widget;
+    var count, initialize, initializeTree, loadNodes, modal, nodeClicked, nodeIsPicked, nodes, pickNode, picked, recursiveNodeSearch, renderList, renderTree, showPicked, showSearch, showTree, tabs, unpickNode, updatePickedIds, widget;
     widget = $(this);
     picked = [];
     nodes = [];
     tabs = {};
-    widget.html(options.name);
-    widget.on('click', function(e) {
-      modal.modal('show');
-      return loadNodes(options.data, {}, function(nodes) {
-        var tree;
-        $('.ui.active.dimmer', modal).removeClass('active');
-        tree = renderTree(nodes, {
-          height: '400px',
-          overflowY: 'scroll'
-        });
-        tabs.tree.html(tree);
-        return initializeTree(tree);
-      });
-    });
     modal = $("<div class=\"ui tree-picker modal\">\n  <i class=\"close icon\"></i>\n  <div class=\"header\">\n    " + options.name + "\n\n    <div class=\"ui menu\">\n      <a class=\"active tree item\">\n        <i class=\"list icon\"></i> Выбрать\n      </a>\n      <a class=\"picked item\">\n        <i class=\"checkmark icon\"></i> Выбранные <span class=\"count\"></span>\n      </a>\n    </div>\n  </div>\n  <div class=\"ui search form\">\n    <div class=\"field\">\n      <div class=\"ui icon input\">\n        <input type=\"text\" placeholder=\"Поиск\">\n        <i class=\"search icon\"></i>\n      </div>\n    </div>\n  </div>\n  <div class=\"content\">\n    <div class=\"ui active inverted dimmer\"><div class=\"ui text loader\">Loading data</div></div>\n    <div class=\"tree-tab\">\n      <div style=\"height: 400px\"></div>\n    </div>\n\n    <div class=\"search-tab\">\n    </div>\n\n    <div class=\"picked-tab\">\n    </div>\n  </div>\n  <div class=\"actions\">\n    <a class=\"ui blue button accept\">Accept</a>\n    <a class=\"ui button close\">Close</a>\n  </div>\n</div>").modal({
       duration: 200
     });
@@ -28,22 +14,53 @@
       search: $('.search-tab', modal),
       picked: $('.picked-tab', modal)
     };
-    $('.actions .accept', modal).on('click', function(e) {
-      widget.html(options.name + " (Выбрано " + picked.length + ")");
-      modal.modal('close');
-      if (options.onSubmit) {
-        return options.onSubmit(picked);
-      }
-    });
-    $('.menu .tree', modal).on('click', function(e) {
-      return showTree();
-    });
-    $('.menu .picked', modal).on('click', function(e) {
-      return showPicked();
-    });
-    $('.search input', modal).on('keyup', function(e) {
-      return showSearch($(this).val());
-    });
+    initialize = function() {
+      widget.html(options.name);
+      widget.on('click', function(e) {
+        modal.modal('show');
+        return loadNodes(options.data, {}, function(nodes) {
+          var i, id, len, ref, searchResult, tree;
+          $('.ui.active.dimmer', modal).removeClass('active');
+          if (widget.attr("data-picked-ids")) {
+            options.picked = widget.attr("data-picked-ids").split(",");
+          }
+          if (options.picked) {
+            ref = options.picked;
+            for (i = 0, len = ref.length; i < len; i++) {
+              id = ref[i];
+              searchResult = recursiveNodeSearch(nodes, function(node) {
+                return ("" + node.id) === ("" + id);
+              });
+              if (searchResult.length) {
+                picked.push(searchResult[0]);
+              }
+            }
+          }
+          tree = renderTree(nodes, {
+            height: '400px',
+            overflowY: 'scroll'
+          });
+          tabs.tree.html(tree);
+          return initializeTree(tree);
+        });
+      });
+      $('.actions .accept', modal).on('click', function(e) {
+        widget.html(options.name + " (Выбрано " + picked.length + " элементов)");
+        modal.modal('close');
+        if (options.onSubmit) {
+          return options.onSubmit(picked);
+        }
+      });
+      $('.menu .tree', modal).on('click', function(e) {
+        return showTree();
+      });
+      $('.menu .picked', modal).on('click', function(e) {
+        return showPicked();
+      });
+      return $('.search input', modal).on('keyup', function(e) {
+        return showSearch($(this).val());
+      });
+    };
     loadNodes = function(url, params, success) {
       if (params == null) {
         params = {};
@@ -63,7 +80,9 @@
     showSearch = function(query) {
       var foundNodes, list;
       if (query !== null && query !== "") {
-        foundNodes = recursiveNodeSearch(nodes, query);
+        foundNodes = recursiveNodeSearch(nodes, function(node) {
+          return node.name.toLowerCase().indexOf(query.toLowerCase()) > -1;
+        });
         list = renderList(foundNodes, {
           height: '400px',
           overflowY: 'scroll'
@@ -139,11 +158,12 @@
           node.addClass('picked');
         }
         if (!node.hasClass('childless')) {
-          return $('>.icon', head).on('click', function(e) {
+          $('>.icon', head).on('click', function(e) {
             node.toggleClass('opened');
             return content.slideToggle();
           });
         }
+        return updatePickedIds();
       });
     };
     nodeClicked = function(node) {
@@ -175,7 +195,7 @@
     };
     nodeIsPicked = function(node) {
       return picked.filter(function(n) {
-        return n.id === node.attr('data-id');
+        return ("" + n.id) === node.attr('data-id');
       }).length;
     };
     updatePickedIds = function() {
@@ -190,24 +210,24 @@
         return count.html("");
       }
     };
-    return recursiveNodeSearch = function(nodes, query) {
+    recursiveNodeSearch = function(nodes, comparator) {
       var i, len, node, results;
-      query = query.toLowerCase();
       results = [];
       for (i = 0, len = nodes.length; i < len; i++) {
         node = nodes[i];
-        if (node.name.toLowerCase().indexOf(query) > -1) {
+        if (comparator(node)) {
           results.push({
             id: node.id,
             name: node.name
           });
         }
         if (node.nodes) {
-          results = results.concat(recursiveNodeSearch(node.nodes, query));
+          results = results.concat(recursiveNodeSearch(node.nodes, comparator));
         }
       }
       return results;
     };
+    return initialize();
   };
 
 }).call(this);
