@@ -20,6 +20,6 @@
   ],
 
   "dependencies": {
-    "semantic-ui": "~1.11.6"
+    "semantic-ui": "latest"
   }
 }
