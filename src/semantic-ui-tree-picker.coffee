@@ -74,7 +74,6 @@ $.fn.treePicker = (options) ->
     )
 
     $('.actions .accept', modal).on('click', (e) ->
-      widget.html("#{options.name} (Выбрано #{picked.length} элементов)")
       modal.modal('close')
 
       if options.onSubmit
@@ -212,6 +211,7 @@ $.fn.treePicker = (options) ->
 
   updatePickedIds = ->
     widget.attr('data-picked-ids', picked.map((n) -> n.id))
+    widget.html("#{options.name} (Выбрано #{picked.length} элементов)")
     if picked.length
       count.closest('.item').addClass('highlighted')
       count.html("(#{picked.length})")
