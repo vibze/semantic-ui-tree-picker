@@ -3,7 +3,10 @@
   "description": "A modal tree picker",
   "version": "0.0.1",
 
-  "main": "treecker.js",
+  "main": [
+    "dist/semantic-ui-tree-picker.js",
+    "dist/semantic-ui-tree-picker.css"
+  ],
 
   "author": {
     "name": "Viktor Ten",
