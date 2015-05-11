@@ -25,6 +25,7 @@
             options.picked = widget.attr("data-picked-ids").split(",");
           }
           if (options.picked) {
+            picked = [];
             ref = options.picked;
             for (i = 0, len = ref.length; i < len; i++) {
               id = ref[i];
@@ -66,7 +67,7 @@
         params = {};
       }
       return $.get(url, params, function(response) {
-        if (output.constructor === String) {
+        if (response.constructor === String) {
           nodes = $.parseJSON(response);
         } else {
           nodes = response;
@@ -85,7 +86,7 @@
       var foundNodes, list;
       if (query !== null && query !== "") {
         foundNodes = recursiveNodeSearch(nodes, function(node) {
-          return node.name.toLowerCase().indexOf(query.toLowerCase()) > -1;
+          return node.name && node.name.toLowerCase().indexOf(query.toLowerCase()) > -1;
         });
         list = renderList(foundNodes, {
           height: '400px',

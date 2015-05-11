@@ -61,6 +61,7 @@ $.fn.treePicker = (options) ->
           options.picked = widget.attr("data-picked-ids").split(",")
 
         if options.picked
+          picked = []
           for id in options.picked
             searchResult = recursiveNodeSearch(nodes, (node) -> "#{node.id}" == "#{id}")
             if searchResult.length
@@ -86,7 +87,7 @@ $.fn.treePicker = (options) ->
 
   loadNodes = (url, params={}, success) ->
     $.get(url, params, (response) ->
-      if constructor == String
+      if response.constructor == String
         nodes = $.parseJSON(response)
       else
         nodes = response
@@ -101,7 +102,7 @@ $.fn.treePicker = (options) ->
 
   showSearch = (query) ->
     if query isnt null and query != ""
-      foundNodes = recursiveNodeSearch(nodes, (node) -> node.name.toLowerCase().indexOf(query.toLowerCase()) > -1)
+      foundNodes = recursiveNodeSearch(nodes, (node) -> node.name and node.name.toLowerCase().indexOf(query.toLowerCase()) > -1)
       list = renderList(foundNodes, height: '400px', overflowY: 'scroll')
 
       $('.menu .item', modal).removeClass('active')
