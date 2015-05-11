@@ -23,6 +23,7 @@ Define container for widget. Styling is up to you.
       name: 'The Menu', // Name for widget
       picked: [110,120], // Ids of pre-picked nodes
       onSubmit: function(nodes) { console.log(nodes); } // Submit callback
+      displayFormat: function(picked) { return "Regions ("+picked.length+" picked)"; } // Displaying result on a widget. This is the default.
     })
   });
 </script>

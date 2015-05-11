@@ -50,35 +50,43 @@ $.fn.treePicker = (options) ->
     search: $('.search-tab', modal)
     picked: $('.picked-tab', modal)
 
+  config = {
+    displayFormat: (picked) ->
+      "#{options.name} (Выбрано #{picked.length})"
+  }
+  $.extend(config, options)
+
   initialize = () ->
     if widget.attr("data-picked-ids")
-      options.picked = widget.attr("data-picked-ids").split(",")
+      config.picked = widget.attr("data-picked-ids").split(",")
 
-    if options.picked
-      widget.html("#{options.name} (Выбрано #{options.picked.length})")
+    if config.picked
+      widget.html(config.displayFormat(config.picked))
+
     widget.on('click', (e) ->
       modal.modal('show')
-      loadNodes(options.data, {}, (nodes) ->
-        $('.ui.active.dimmer', modal).removeClass('active')
+      unless nodes.length
+        loadNodes(config.data, {}, (nodes) ->
+          $('.ui.active.dimmer', modal).removeClass('active')
 
-        if options.picked
-          picked = []
-          for id in options.picked
-            searchResult = recursiveNodeSearch(nodes, (node) -> "#{node.id}" == "#{id}")
-            if searchResult.length
-              picked.push(searchResult[0])
+          if config.picked
+            picked = []
+            for id in config.picked
+              searchResult = recursiveNodeSearch(nodes, (node) -> "#{node.id}" == "#{id}")
+              if searchResult.length
+                picked.push(searchResult[0])
 
-        tree = renderTree(nodes, height: '400px', overflowY: 'scroll')
-        tabs.tree.html(tree)
-        initializeTree(tree)
-      )
+          tree = renderTree(nodes, height: '400px', overflowY: 'scroll')
+          tabs.tree.html(tree)
+          initializeTree(tree)
+        )
     )
 
     $('.actions .accept', modal).on('click', (e) ->
       modal.modal('close')
 
-      if options.onSubmit
-        options.onSubmit(picked)
+      if config.onSubmit
+        config.onSubmit(picked)
     )
 
     $('.menu .tree', modal).on('click', (e) -> showTree())
@@ -212,7 +220,7 @@ $.fn.treePicker = (options) ->
 
   updatePickedIds = ->
     widget.attr('data-picked-ids', picked.map((n) -> n.id))
-    widget.html("#{options.name} (Выбрано #{picked.length})")
+    widget.html(config.displayFormat(picked))
     if picked.length
       count.closest('.item').addClass('highlighted')
       count.html("(#{picked.length})")

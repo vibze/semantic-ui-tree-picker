@@ -1,6 +1,6 @@
 (function() {
   $.fn.treePicker = function(options) {
-    var count, initialize, initializeTree, loadNodes, modal, nodeClicked, nodeIsPicked, nodes, pickNode, picked, recursiveNodeSearch, renderList, renderTree, showPicked, showSearch, showTree, tabs, unpickNode, updatePickedIds, widget;
+    var config, count, initialize, initializeTree, loadNodes, modal, nodeClicked, nodeIsPicked, nodes, pickNode, picked, recursiveNodeSearch, renderList, renderTree, showPicked, showSearch, showTree, tabs, unpickNode, updatePickedIds, widget;
     widget = $(this);
     picked = [];
     nodes = [];
@@ -14,43 +14,51 @@
       search: $('.search-tab', modal),
       picked: $('.picked-tab', modal)
     };
+    config = {
+      displayFormat: function(picked) {
+        return options.name + " (Выбрано " + picked.length + ")";
+      }
+    };
+    $.extend(config, options);
     initialize = function() {
       if (widget.attr("data-picked-ids")) {
-        options.picked = widget.attr("data-picked-ids").split(",");
+        config.picked = widget.attr("data-picked-ids").split(",");
       }
-      if (options.picked) {
-        widget.html(options.name + " (Выбрано " + options.picked.length + ")");
+      if (config.picked) {
+        widget.html(config.displayFormat(config.picked));
       }
       widget.on('click', function(e) {
         modal.modal('show');
-        return loadNodes(options.data, {}, function(nodes) {
-          var i, id, len, ref, searchResult, tree;
-          $('.ui.active.dimmer', modal).removeClass('active');
-          if (options.picked) {
-            picked = [];
-            ref = options.picked;
-            for (i = 0, len = ref.length; i < len; i++) {
-              id = ref[i];
-              searchResult = recursiveNodeSearch(nodes, function(node) {
-                return ("" + node.id) === ("" + id);
-              });
-              if (searchResult.length) {
-                picked.push(searchResult[0]);
+        if (!nodes.length) {
+          return loadNodes(config.data, {}, function(nodes) {
+            var i, id, len, ref, searchResult, tree;
+            $('.ui.active.dimmer', modal).removeClass('active');
+            if (config.picked) {
+              picked = [];
+              ref = config.picked;
+              for (i = 0, len = ref.length; i < len; i++) {
+                id = ref[i];
+                searchResult = recursiveNodeSearch(nodes, function(node) {
+                  return ("" + node.id) === ("" + id);
+                });
+                if (searchResult.length) {
+                  picked.push(searchResult[0]);
+                }
               }
             }
-          }
-          tree = renderTree(nodes, {
-            height: '400px',
-            overflowY: 'scroll'
+            tree = renderTree(nodes, {
+              height: '400px',
+              overflowY: 'scroll'
+            });
+            tabs.tree.html(tree);
+            return initializeTree(tree);
           });
-          tabs.tree.html(tree);
-          return initializeTree(tree);
-        });
+        }
       });
       $('.actions .accept', modal).on('click', function(e) {
         modal.modal('close');
-        if (options.onSubmit) {
-          return options.onSubmit(picked);
+        if (config.onSubmit) {
+          return config.onSubmit(picked);
         }
       });
       $('.menu .tree', modal).on('click', function(e) {
@@ -208,7 +216,7 @@
       widget.attr('data-picked-ids', picked.map(function(n) {
         return n.id;
       }));
-      widget.html(options.name + " (Выбрано " + picked.length + ")");
+      widget.html(config.displayFormat(picked));
       if (picked.length) {
         count.closest('.item').addClass('highlighted');
         return count.html("(" + picked.length + ")");
