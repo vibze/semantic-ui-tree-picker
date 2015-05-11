@@ -1,7 +1,7 @@
 {
   "name": "semantic-ui-tree-picker",
   "description": "A modal tree picker",
-  "version": "0.0.1",
+  "version": "0.0.2",
 
   "main": [
     "dist/semantic-ui-tree-picker.js",
