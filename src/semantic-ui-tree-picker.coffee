@@ -51,14 +51,15 @@ $.fn.treePicker = (options) ->
     picked: $('.picked-tab', modal)
 
   initialize = () ->
-    widget.html(options.name)
+    if widget.attr("data-picked-ids")
+      options.picked = widget.attr("data-picked-ids").split(",")
+
+    if options.picked
+      widget.html("#{options.name} (Выбрано #{options.picked.length})")
     widget.on('click', (e) ->
       modal.modal('show')
       loadNodes(options.data, {}, (nodes) ->
         $('.ui.active.dimmer', modal).removeClass('active')
-
-        if widget.attr("data-picked-ids")
-          options.picked = widget.attr("data-picked-ids").split(",")
 
         if options.picked
           picked = []
@@ -211,7 +212,7 @@ $.fn.treePicker = (options) ->
 
   updatePickedIds = ->
     widget.attr('data-picked-ids', picked.map((n) -> n.id))
-    widget.html("#{options.name} (Выбрано #{picked.length} элементов)")
+    widget.html("#{options.name} (Выбрано #{picked.length})")
     if picked.length
       count.closest('.item').addClass('highlighted')
       count.html("(#{picked.length})")

@@ -15,15 +15,17 @@
       picked: $('.picked-tab', modal)
     };
     initialize = function() {
-      widget.html(options.name);
+      if (widget.attr("data-picked-ids")) {
+        options.picked = widget.attr("data-picked-ids").split(",");
+      }
+      if (options.picked) {
+        widget.html(options.name + " (Выбрано " + options.picked.length + ")");
+      }
       widget.on('click', function(e) {
         modal.modal('show');
         return loadNodes(options.data, {}, function(nodes) {
           var i, id, len, ref, searchResult, tree;
           $('.ui.active.dimmer', modal).removeClass('active');
-          if (widget.attr("data-picked-ids")) {
-            options.picked = widget.attr("data-picked-ids").split(",");
-          }
           if (options.picked) {
             picked = [];
             ref = options.picked;
@@ -46,7 +48,6 @@
         });
       });
       $('.actions .accept', modal).on('click', function(e) {
-        widget.html(options.name + " (Выбрано " + picked.length + " элементов)");
         modal.modal('close');
         if (options.onSubmit) {
           return options.onSubmit(picked);
@@ -207,6 +208,7 @@
       widget.attr('data-picked-ids', picked.map(function(n) {
         return n.id;
       }));
+      widget.html(options.name + " (Выбрано " + picked.length + ")");
       if (picked.length) {
         count.closest('.item').addClass('highlighted');
         return count.html("(" + picked.length + ")");
