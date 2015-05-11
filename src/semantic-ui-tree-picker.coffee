@@ -86,7 +86,10 @@ $.fn.treePicker = (options) ->
 
   loadNodes = (url, params={}, success) ->
     $.get(url, params, (response) ->
-      nodes = $.parseJSON(response)
+      if output.constructor == String
+        nodes = $.parseJSON(response)
+      else
+        nodes = response
       success(nodes))
 
   showTree = ->

@@ -66,7 +66,11 @@
         params = {};
       }
       return $.get(url, params, function(response) {
-        nodes = $.parseJSON(response);
+        if (output.constructor === String) {
+          nodes = $.parseJSON(response);
+        } else {
+          nodes = response;
+        }
         return success(nodes);
       });
     };
