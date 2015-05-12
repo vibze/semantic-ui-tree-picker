@@ -51,6 +51,7 @@ $.fn.treePicker = (options) ->
     picked: $('.picked-tab', modal)
 
   config = {
+    minSearchQueryLength: 3
     displayFormat: (picked) ->
       "#{options.name} (Выбрано #{picked.length})"
   }
@@ -111,7 +112,7 @@ $.fn.treePicker = (options) ->
     tabs.picked.hide()
 
   showSearch = (query) ->
-    if query isnt null and query != ""
+    if query isnt null and query.length >= config.minSearchQueryLength
       foundNodes = recursiveNodeSearch(nodes, (node) -> node.name and node.name.toLowerCase().indexOf(query.toLowerCase()) > -1)
       list = renderList(foundNodes, height: '400px', overflowY: 'scroll')
 

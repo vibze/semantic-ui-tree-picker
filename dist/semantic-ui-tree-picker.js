@@ -15,6 +15,7 @@
       picked: $('.picked-tab', modal)
     };
     config = {
+      minSearchQueryLength: 3,
       displayFormat: function(picked) {
         return options.name + " (Выбрано " + picked.length + ")";
       }
@@ -102,7 +103,7 @@
     };
     showSearch = function(query) {
       var foundNodes, list;
-      if (query !== null && query !== "") {
+      if (query !== null && query.length >= config.minSearchQueryLength) {
         foundNodes = recursiveNodeSearch(nodes, function(node) {
           return node.name && node.name.toLowerCase().indexOf(query.toLowerCase()) > -1;
         });
