@@ -53,6 +53,8 @@ $.fn.treePicker = (options) ->
   config = {
     singlePick: false
     minSearchQueryLength: 3
+    hidden: (node) -> false
+    disabled: (node) -> false
     displayFormat: (picked) ->
       "#{options.name} (Выбрано #{picked.length})"
   }
@@ -148,6 +150,9 @@ $.fn.treePicker = (options) ->
   renderTree = (nodes, css={}) ->
     tree = $('<div class="ui tree-picker tree"></div>').css(css)
     for node in nodes
+      if config.hidden(node)
+        continue
+
       nodeElement = $("""
         <div class="node" data-id="#{node.id}" data-name="#{node.name}">
           <div class="head">
@@ -161,6 +166,9 @@ $.fn.treePicker = (options) ->
         </div>
       """).appendTo(tree)
 
+      if config.disabled(node)
+        nodeElement.addClass('disabled')
+
       if node.nodes and node.nodes.length
         $('.content', nodeElement).append(renderTree(node.nodes))
       else
@@ -170,6 +178,9 @@ $.fn.treePicker = (options) ->
   renderList = (nodes, css={}) ->
     list = $('<div class="ui tree-picker list"></div>').css(css)
     for node in nodes
+      if config.hidden(node)
+        continue
+
       nodeElement = $("""
         <div class="node" data-id="#{node.id}" data-name="#{node.name}">
           <div class="head">
@@ -179,6 +190,9 @@ $.fn.treePicker = (options) ->
           <div class="content"></div>
         </div>
       """).appendTo(list)
+
+      if config.disabled(node)
+        nodeElement.addClass('disabled')
     list
 
   initializeNodeList = (tree) ->
@@ -203,15 +217,16 @@ $.fn.treePicker = (options) ->
     )
 
   nodeClicked = (node) ->
-    if config.singlePick
-      $('.node.picked', modal).removeClass('picked')
-      picked = []
+    unless node.hasClass('disabled')
+      if config.singlePick
+        $('.node.picked', modal).removeClass('picked')
+        picked = []
 
-    node.toggleClass('picked')
-    if node.hasClass('picked')
-      pickNode(node)
-    else
-      unpickNode(node)
+      node.toggleClass('picked')
+      if node.hasClass('picked')
+        pickNode(node)
+      else
+        unpickNode(node)
 
   pickNode = (node) ->
     id = node.attr('data-id')
@@ -221,7 +236,7 @@ $.fn.treePicker = (options) ->
 
   unpickNode = (node) ->
     id = node.attr('data-id')
-    picked = picked.filter((n) -> n.id isnt id)
+    picked = picked.filter((n) -> "#{n.id}" != "#{id}")
     updatePickedIds()
     $(".node[data-id=#{id}]", modal).removeClass('picked')
 

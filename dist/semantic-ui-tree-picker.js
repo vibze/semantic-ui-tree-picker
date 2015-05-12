@@ -17,6 +17,12 @@
     config = {
       singlePick: false,
       minSearchQueryLength: 3,
+      hidden: function(node) {
+        return false;
+      },
+      disabled: function(node) {
+        return false;
+      },
       displayFormat: function(picked) {
         return options.name + " (Выбрано " + picked.length + ")";
       }
@@ -151,7 +157,13 @@
       tree = $('<div class="ui tree-picker tree"></div>').css(css);
       for (i = 0, len = nodes.length; i < len; i++) {
         node = nodes[i];
+        if (config.hidden(node)) {
+          continue;
+        }
         nodeElement = $("<div class=\"node\" data-id=\"" + node.id + "\" data-name=\"" + node.name + "\">\n  <div class=\"head\">\n    <i class=\"add circle icon\"></i>\n    <i class=\"minus circle icon\"></i>\n    <i class=\"radio icon\"></i>\n    <a class=\"name\">" + node.name + "</a>\n    <i class=\"checkmark icon\"></i>\n  </div>\n  <div class=\"content\"></div>\n</div>").appendTo(tree);
+        if (config.disabled(node)) {
+          nodeElement.addClass('disabled');
+        }
         if (node.nodes && node.nodes.length) {
           $('.content', nodeElement).append(renderTree(node.nodes));
         } else {
@@ -168,7 +180,13 @@
       list = $('<div class="ui tree-picker list"></div>').css(css);
       for (i = 0, len = nodes.length; i < len; i++) {
         node = nodes[i];
+        if (config.hidden(node)) {
+          continue;
+        }
         nodeElement = $("<div class=\"node\" data-id=\"" + node.id + "\" data-name=\"" + node.name + "\">\n  <div class=\"head\">\n    <a class=\"name\">" + node.name + "</a>\n    <i class=\"checkmark icon\"></i>\n  </div>\n  <div class=\"content\"></div>\n</div>").appendTo(list);
+        if (config.disabled(node)) {
+          nodeElement.addClass('disabled');
+        }
       }
       return list;
     };
@@ -194,15 +212,17 @@
       });
     };
     nodeClicked = function(node) {
-      if (config.singlePick) {
-        $('.node.picked', modal).removeClass('picked');
-        picked = [];
-      }
-      node.toggleClass('picked');
-      if (node.hasClass('picked')) {
-        return pickNode(node);
-      } else {
-        return unpickNode(node);
+      if (!node.hasClass('disabled')) {
+        if (config.singlePick) {
+          $('.node.picked', modal).removeClass('picked');
+          picked = [];
+        }
+        node.toggleClass('picked');
+        if (node.hasClass('picked')) {
+          return pickNode(node);
+        } else {
+          return unpickNode(node);
+        }
       }
     };
     pickNode = function(node) {
@@ -219,7 +239,7 @@
       var id;
       id = node.attr('data-id');
       picked = picked.filter(function(n) {
-        return n.id !== id;
+        return ("" + n.id) !== ("" + id);
       });
       updatePickedIds();
       return $(".node[data-id=" + id + "]", modal).removeClass('picked');

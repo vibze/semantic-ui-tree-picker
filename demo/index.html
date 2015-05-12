@@ -92,14 +92,10 @@
       $('#one-node-selectable').treePicker({
         data: sampleData,
         name: 'Regions',
-        picked:  [120,130,140],
+        singlePick: true,
         onSubmit: function(nodes) {
           console.log(nodes);
-        },
-        displayFormat: function(picked) {
-          return "Regions ("+picked.length+" picked)";
-        },
-        minSearchQueryLength: 1
+        }
       });
     </pre>
     <script>
@@ -112,6 +108,31 @@
         }
       });
     </script>
+
+    <h1>If you want to disable or hide some of the nodes</h1>
+    <a id="hiding-disabling-nodes" class="ui blue button"></a>
+    <pre>
+      $('#one-node-selectable').treePicker({
+        data: sampleData,
+        name: 'Regions',
+        singlePick: true,
+        onSubmit: function(nodes) {
+          console.log(nodes);
+        }
+      });
+    </pre>
+    <script>
+      $('#hiding-disabling-nodes').treePicker({
+        data: sampleData,
+        name: 'Regions',
+        disabled: function(node) { return node.id > 300; },
+        hidden: function(node) { console.log(node); return node.id == 2; },
+        onSubmit: function(nodes) {
+          console.log(nodes);
+        }
+      });
+    </script>
+
 
     <h1>Load nodes with Ajax</h1>
     <a id="Example1" class="ui blue button"></a>
