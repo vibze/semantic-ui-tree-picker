@@ -82,7 +82,34 @@
         displayFormat: function(picked) {
           return "Regions ("+picked.length+" picked)";
         },
-        minSearchQueryLength: 1 
+        minSearchQueryLength: 1
+      });
+    </script>
+
+    <h1>Only one node is selectable</h1>
+    <a id="one-node-selectable" class="ui blue button"></a>
+    <pre>
+      $('#one-node-selectable').treePicker({
+        data: sampleData,
+        name: 'Regions',
+        picked:  [120,130,140],
+        onSubmit: function(nodes) {
+          console.log(nodes);
+        },
+        displayFormat: function(picked) {
+          return "Regions ("+picked.length+" picked)";
+        },
+        minSearchQueryLength: 1
+      });
+    </pre>
+    <script>
+      $('#one-node-selectable').treePicker({
+        data: sampleData,
+        name: 'Regions',
+        singlePick: true,
+        onSubmit: function(nodes) {
+          console.log(nodes);
+        }
       });
     </script>
 

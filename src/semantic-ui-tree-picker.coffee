@@ -51,6 +51,7 @@ $.fn.treePicker = (options) ->
     picked: $('.picked-tab', modal)
 
   config = {
+    singlePick: false
     minSearchQueryLength: 3
     displayFormat: (picked) ->
       "#{options.name} (Выбрано #{picked.length})"
@@ -63,6 +64,8 @@ $.fn.treePicker = (options) ->
 
     if config.picked
       widget.html(config.displayFormat(config.picked))
+    else
+      widget.html(config.displayFormat([]))
 
     widget.on('click', (e) ->
       modal.modal('show')
@@ -102,7 +105,7 @@ $.fn.treePicker = (options) ->
 
     tree = renderTree(nodes, height: '400px', overflowY: 'scroll')
     tabs.tree.html(tree)
-    initializeTree(tree)
+    initializeNodeList(tree)
 
   showTree = ->
     $('.menu .item', modal).removeClass('active')
@@ -120,7 +123,7 @@ $.fn.treePicker = (options) ->
       tabs.search.show().html(list)
       tabs.tree.hide()
       tabs.picked.hide()
-      initializeTree(list)
+      initializeNodeList(list)
 
       $('.name', list).each(() ->
         name = $(@).text()
@@ -140,7 +143,7 @@ $.fn.treePicker = (options) ->
     tabs.tree.hide()
     tabs.search.hide()
 
-    initializeTree(list)
+    initializeNodeList(list)
 
   renderTree = (nodes, css={}) ->
     tree = $('<div class="ui tree-picker tree"></div>').css(css)
@@ -178,7 +181,7 @@ $.fn.treePicker = (options) ->
       """).appendTo(list)
     list
 
-  initializeTree = (tree) ->
+  initializeNodeList = (tree) ->
     $('.node', tree).each(() ->
       node = $(@)
       head = $('>.head', node)
@@ -200,6 +203,10 @@ $.fn.treePicker = (options) ->
     )
 
   nodeClicked = (node) ->
+    if config.singlePick
+      $('.node.picked', modal).removeClass('picked')
+      picked = []
+
     node.toggleClass('picked')
     if node.hasClass('picked')
       pickNode(node)

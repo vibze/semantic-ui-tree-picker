@@ -1,6 +1,6 @@
 (function() {
   $.fn.treePicker = function(options) {
-    var config, count, initialize, initializeNodes, initializeTree, loadNodes, modal, nodeClicked, nodeIsPicked, nodes, pickNode, picked, recursiveNodeSearch, renderList, renderTree, showPicked, showSearch, showTree, tabs, unpickNode, updatePickedIds, widget;
+    var config, count, initialize, initializeNodeList, initializeNodes, loadNodes, modal, nodeClicked, nodeIsPicked, nodes, pickNode, picked, recursiveNodeSearch, renderList, renderTree, showPicked, showSearch, showTree, tabs, unpickNode, updatePickedIds, widget;
     widget = $(this);
     picked = [];
     nodes = [];
@@ -15,6 +15,7 @@
       picked: $('.picked-tab', modal)
     };
     config = {
+      singlePick: false,
       minSearchQueryLength: 3,
       displayFormat: function(picked) {
         return options.name + " (Выбрано " + picked.length + ")";
@@ -27,6 +28,8 @@
       }
       if (config.picked) {
         widget.html(config.displayFormat(config.picked));
+      } else {
+        widget.html(config.displayFormat([]));
       }
       widget.on('click', function(e) {
         modal.modal('show');
@@ -92,7 +95,7 @@
         overflowY: 'scroll'
       });
       tabs.tree.html(tree);
-      return initializeTree(tree);
+      return initializeNodeList(tree);
     };
     showTree = function() {
       $('.menu .item', modal).removeClass('active');
@@ -115,7 +118,7 @@
         tabs.search.show().html(list);
         tabs.tree.hide();
         tabs.picked.hide();
-        initializeTree(list);
+        initializeNodeList(list);
         return $('.name', list).each(function() {
           var name, regex;
           name = $(this).text();
@@ -138,7 +141,7 @@
       tabs.picked.show().html(list);
       tabs.tree.hide();
       tabs.search.hide();
-      return initializeTree(list);
+      return initializeNodeList(list);
     };
     renderTree = function(nodes, css) {
       var i, len, node, nodeElement, tree;
@@ -169,7 +172,7 @@
       }
       return list;
     };
-    initializeTree = function(tree) {
+    initializeNodeList = function(tree) {
       return $('.node', tree).each(function() {
         var content, head, node;
         node = $(this);
@@ -191,6 +194,10 @@
       });
     };
     nodeClicked = function(node) {
+      if (config.singlePick) {
+        $('.node.picked', modal).removeClass('picked');
+        picked = [];
+      }
       node.toggleClass('picked');
       if (node.hasClass('picked')) {
         return pickNode(node);
