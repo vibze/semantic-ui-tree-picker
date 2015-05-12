@@ -66,20 +66,12 @@ $.fn.treePicker = (options) ->
     widget.on('click', (e) ->
       modal.modal('show')
       unless nodes.length
-        loadNodes(config.data, {}, (nodes) ->
-          $('.ui.active.dimmer', modal).removeClass('active')
-
-          if config.picked
-            picked = []
-            for id in config.picked
-              searchResult = recursiveNodeSearch(nodes, (node) -> "#{node.id}" == "#{id}")
-              if searchResult.length
-                picked.push(searchResult[0])
-
-          tree = renderTree(nodes, height: '400px', overflowY: 'scroll')
-          tabs.tree.html(tree)
-          initializeTree(tree)
-        )
+        $('.ui.active.dimmer', modal).removeClass('active')
+        if config.url
+          loadNodes(config.url, {}, (nodes) -> initializeNodes(nodes))
+        if config.data
+          nodes = config.data
+          initializeNodes(nodes)
     )
 
     $('.actions .accept', modal).on('click', (e) ->
@@ -100,6 +92,18 @@ $.fn.treePicker = (options) ->
       else
         nodes = response
       success(nodes))
+
+  initializeNodes = (nodes) ->
+    if config.picked
+      picked = []
+      for id in config.picked
+        searchResult = recursiveNodeSearch(nodes, (node) -> "#{node.id}" == "#{id}")
+        if searchResult.length
+          picked.push(searchResult[0])
+
+    tree = renderTree(nodes, height: '400px', overflowY: 'scroll')
+    tabs.tree.html(tree)
+    initializeTree(tree)
 
   showTree = ->
     $('.menu .item', modal).removeClass('active')

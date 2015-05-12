@@ -1,6 +1,6 @@
 (function() {
   $.fn.treePicker = function(options) {
-    var config, count, initialize, initializeTree, loadNodes, modal, nodeClicked, nodeIsPicked, nodes, pickNode, picked, recursiveNodeSearch, renderList, renderTree, showPicked, showSearch, showTree, tabs, unpickNode, updatePickedIds, widget;
+    var config, count, initialize, initializeNodes, initializeTree, loadNodes, modal, nodeClicked, nodeIsPicked, nodes, pickNode, picked, recursiveNodeSearch, renderList, renderTree, showPicked, showSearch, showTree, tabs, unpickNode, updatePickedIds, widget;
     widget = $(this);
     picked = [];
     nodes = [];
@@ -30,29 +30,16 @@
       widget.on('click', function(e) {
         modal.modal('show');
         if (!nodes.length) {
-          return loadNodes(config.data, {}, function(nodes) {
-            var i, id, len, ref, searchResult, tree;
-            $('.ui.active.dimmer', modal).removeClass('active');
-            if (config.picked) {
-              picked = [];
-              ref = config.picked;
-              for (i = 0, len = ref.length; i < len; i++) {
-                id = ref[i];
-                searchResult = recursiveNodeSearch(nodes, function(node) {
-                  return ("" + node.id) === ("" + id);
-                });
-                if (searchResult.length) {
-                  picked.push(searchResult[0]);
-                }
-              }
-            }
-            tree = renderTree(nodes, {
-              height: '400px',
-              overflowY: 'scroll'
+          $('.ui.active.dimmer', modal).removeClass('active');
+          if (config.url) {
+            loadNodes(config.url, {}, function(nodes) {
+              return initializeNodes(nodes);
             });
-            tabs.tree.html(tree);
-            return initializeTree(tree);
-          });
+          }
+          if (config.data) {
+            nodes = config.data;
+            return initializeNodes(nodes);
+          }
         }
       });
       $('.actions .accept', modal).on('click', function(e) {
@@ -83,6 +70,28 @@
         }
         return success(nodes);
       });
+    };
+    initializeNodes = function(nodes) {
+      var i, id, len, ref, searchResult, tree;
+      if (config.picked) {
+        picked = [];
+        ref = config.picked;
+        for (i = 0, len = ref.length; i < len; i++) {
+          id = ref[i];
+          searchResult = recursiveNodeSearch(nodes, function(node) {
+            return ("" + node.id) === ("" + id);
+          });
+          if (searchResult.length) {
+            picked.push(searchResult[0]);
+          }
+        }
+      }
+      tree = renderTree(nodes, {
+        height: '400px',
+        overflowY: 'scroll'
+      });
+      tabs.tree.html(tree);
+      return initializeTree(tree);
     };
     showTree = function() {
       $('.menu .item', modal).removeClass('active');
