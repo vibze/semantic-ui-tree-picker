@@ -62,11 +62,18 @@ $.fn.treePicker = (options) ->
   $.extend(config, options)
 
   initialize = () ->
+    if config.data
+      nodes = config.data
+
     if widget.attr("data-picked-ids")
       config.picked = widget.attr("data-picked-ids").split(",")
 
     if config.picked
-      widget.html(config.displayFormat(config.picked))
+      if nodes.length
+        updatePickedNodes()
+        widget.html(config.displayFormat(picked))
+      else
+        widget.html(config.displayFormat(config.picked))
     else
       widget.html(config.displayFormat([]))
 
@@ -76,8 +83,8 @@ $.fn.treePicker = (options) ->
         $('.ui.active.dimmer', modal).removeClass('active')
         if config.url
           loadNodes(config.url, {}, (nodes) -> initializeNodes(nodes))
-        if config.data
-          nodes = config.data
+
+        if nodes.length
           initializeNodes(nodes)
     )
 
@@ -99,16 +106,18 @@ $.fn.treePicker = (options) ->
       success(nodes))
 
   initializeNodes = (nodes) ->
+    updatePickedNodes()
+    tree = renderTree(nodes, height: '400px', overflowY: 'scroll')
+    tabs.tree.html(tree)
+    initializeNodeList(tree)
+
+  updatePickedNodes = ->
     if config.picked
       picked = []
       for id in config.picked
         searchResult = recursiveNodeSearch(nodes, (node) -> "#{node.id}" == "#{id}")
         if searchResult.length
           picked.push(searchResult[0])
-
-    tree = renderTree(nodes, height: '400px', overflowY: 'scroll')
-    tabs.tree.html(tree)
-    initializeNodeList(tree)
 
   showTree = ->
     $('.menu .item', modal).removeClass('active')

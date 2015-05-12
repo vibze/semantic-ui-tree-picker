@@ -80,7 +80,7 @@
           console.log(nodes);
         },
         displayFormat: function(picked) {
-          return "Regions ("+picked.length+" picked)";
+          return "Regions: " + picked.map(function(node) {return node.name;}).join(', ');
         },
         minSearchQueryLength: 1
       });
