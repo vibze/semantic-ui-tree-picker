@@ -36,6 +36,10 @@
             color: #888;
           }
         }
+        .radio.icon {
+          color: #ddd;
+          display: none;
+        }
         .minus.icon {
           display: none;
         }
@@ -53,7 +57,10 @@
       &.childless {
         >.head {
           .add.circle.icon {
-            visibility: hidden;
+            display: none;
+          }
+          .radio.icon {
+            display: inline-block;
           }
         }
       }

@@ -147,8 +147,8 @@
       tree = $('<div class="ui tree-picker tree"></div>').css(css);
       for (i = 0, len = nodes.length; i < len; i++) {
         node = nodes[i];
-        nodeElement = $("<div class=\"node\" data-id=\"" + node.id + "\" data-name=\"" + node.name + "\">\n  <div class=\"head\">\n    <i class=\"add circle icon\"></i>\n    <i class=\"minus circle icon\"></i>\n    <a class=\"name\">" + node.name + "</a>\n    <i class=\"checkmark icon\"></i>\n  </div>\n  <div class=\"content\"></div>\n</div>").appendTo(tree);
-        if (node.nodes) {
+        nodeElement = $("<div class=\"node\" data-id=\"" + node.id + "\" data-name=\"" + node.name + "\">\n  <div class=\"head\">\n    <i class=\"add circle icon\"></i>\n    <i class=\"minus circle icon\"></i>\n    <i class=\"radio icon\"></i>\n    <a class=\"name\">" + node.name + "</a>\n    <i class=\"checkmark icon\"></i>\n  </div>\n  <div class=\"content\"></div>\n</div>").appendTo(tree);
+        if (node.nodes && node.nodes.length) {
           $('.content', nodeElement).append(renderTree(node.nodes));
         } else {
           nodeElement.addClass("childless");
@@ -245,7 +245,7 @@
             name: node.name
           });
         }
-        if (node.nodes) {
+        if (node.nodes && node.nodes.length) {
           results = results.concat(recursiveNodeSearch(node.nodes, comparator));
         }
       }

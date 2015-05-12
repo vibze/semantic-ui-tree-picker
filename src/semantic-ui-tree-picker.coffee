@@ -76,9 +76,7 @@ $.fn.treePicker = (options) ->
 
     $('.actions .accept', modal).on('click', (e) ->
       modal.modal('close')
-
-      if config.onSubmit
-        config.onSubmit(picked)
+      config.onSubmit(picked) if config.onSubmit
     )
 
     $('.menu .tree', modal).on('click', (e) -> showTree())
@@ -151,6 +149,7 @@ $.fn.treePicker = (options) ->
           <div class="head">
             <i class="add circle icon"></i>
             <i class="minus circle icon"></i>
+            <i class="radio icon"></i>
             <a class="name">#{node.name}</a>
             <i class="checkmark icon"></i>
           </div>
@@ -158,7 +157,7 @@ $.fn.treePicker = (options) ->
         </div>
       """).appendTo(tree)
 
-      if node.nodes
+      if node.nodes and node.nodes.length
         $('.content', nodeElement).append(renderTree(node.nodes))
       else
         nodeElement.addClass("childless")
@@ -188,8 +187,7 @@ $.fn.treePicker = (options) ->
         nodeClicked(node)
       )
 
-      if nodeIsPicked(node)
-        node.addClass('picked')
+      node.addClass('picked') if nodeIsPicked(node)
 
       unless node.hasClass('childless')
         $('>.icon', head).on('click', (e) ->
@@ -238,7 +236,7 @@ $.fn.treePicker = (options) ->
     for node in nodes
       if comparator(node)
         results.push(id: node.id, name: node.name)
-      if node.nodes
+      if node.nodes and node.nodes.length
         results = results.concat(recursiveNodeSearch(node.nodes, comparator))
 
     results
