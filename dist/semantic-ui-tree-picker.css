@@ -50,7 +50,19 @@
   .ui.tree-picker.modal .tree .node.opened > .head .minus.icon, .ui.tree-picker.modal .list .node.opened > .head .minus.icon {
     display: inline-block; }
   .ui.tree-picker.modal .tree .node.disabled, .ui.tree-picker.modal .list .node.disabled {
-    cursor: default !important;
     opacity: 0.3; }
   .ui.tree-picker.modal .tree .node strong.search-query, .ui.tree-picker.modal .list .node strong.search-query {
     background: #ffdc72; }
+.ui.tree-picker.modal .actions .pick-search, .ui.tree-picker.modal .actions .unpick-search, .ui.tree-picker.modal .actions .unpick-picked {
+  color: #2b9289;
+  cursor: pointer;
+  float: left;
+  display: none;
+  margin-top: 8px;
+  margin-right: 25px; }
+.ui.tree-picker.modal .actions .unpick-search, .ui.tree-picker.modal .actions .unpick-picked {
+  color: #932b53; }
+.ui.tree-picker.modal[data-mode="search"] .actions .pick-search, .ui.tree-picker.modal[data-mode="search"] .actions .unpick-search {
+  display: inline-block; }
+.ui.tree-picker.modal[data-mode="picked"] .actions .unpick-picked {
+  display: inline-block; }

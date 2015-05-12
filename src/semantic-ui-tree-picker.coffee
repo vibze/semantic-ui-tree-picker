@@ -39,8 +39,11 @@ $.fn.treePicker = (options) ->
         </div>
       </div>
       <div class="actions">
-        <a class="ui blue button accept">Accept</a>
-        <a class="ui button close">Close</a>
+        <a class="pick-search"><i class="checkmark icon"></i> Выбрать все</a>
+        <a class="unpick-search"><i class="remove icon"></i> Убрать все</a>
+        <a class="unpick-picked"><i class="remove icon"></i> Убрать все</a>
+        <a class="ui blue button accept">Принять</a>
+        <a class="ui button close">Отмена</a>
       </div>
     </div>
     """).modal(duration: 200)
@@ -49,6 +52,10 @@ $.fn.treePicker = (options) ->
     tree: $('.tree-tab', modal)
     search: $('.search-tab', modal)
     picked: $('.picked-tab', modal)
+  actionButtons =
+    pickSearch: $('.actions .pick-search', modal)
+    unpickSearch: $('.actions .unpick-search', modal)
+    unpickPicked: $('.actions .unpick-picked', modal)
 
   config = {
     childrenKey: 'nodes'
@@ -80,17 +87,31 @@ $.fn.treePicker = (options) ->
     widget.on('click', (e) ->
       modal.modal('show')
       unless nodes.length
-        $('.ui.active.dimmer', modal).removeClass('active')
         if config.url
-          loadNodes(config.url, {}, (nodes) -> initializeNodes(nodes))
-
-        if nodes.length
-          initializeNodes(nodes)
+          loadNodes(config.url, {}, (nodes) ->
+            $('.ui.active.dimmer', modal).removeClass('active')
+            initializeNodes(nodes))
+      else
+        $('.ui.active.dimmer', modal).removeClass('active')
+        initializeNodes(nodes)
     )
 
     $('.actions .accept', modal).on('click', (e) ->
       modal.modal('close')
       config.onSubmit(picked) if config.onSubmit
+      widget.html(config.displayFormat(picked))
+    )
+
+    actionButtons.pickSearch.on('click', (e) ->
+      $('.search-tab .node:not(.picked) .name').trigger('click')
+    )
+
+    actionButtons.unpickSearch.on('click', (e) ->
+      $('.search-tab .node.picked .name').trigger('click')
+    )
+
+    actionButtons.unpickPicked.on('click', (e) ->
+      $('.picked-tab .node.picked .name').trigger('click')
     )
 
     $('.menu .tree', modal).on('click', (e) -> showTree())
@@ -125,6 +146,7 @@ $.fn.treePicker = (options) ->
     tabs.tree.show()
     tabs.search.hide()
     tabs.picked.hide()
+    modal.attr('data-mode', 'tree')
 
   showSearch = (query) ->
     if query isnt null and query.length >= config.minSearchQueryLength
@@ -135,6 +157,7 @@ $.fn.treePicker = (options) ->
       tabs.search.show().html(list)
       tabs.tree.hide()
       tabs.picked.hide()
+      modal.attr('data-mode', 'search')
       initializeNodeList(list)
 
       $('.name', list).each(() ->
@@ -154,6 +177,7 @@ $.fn.treePicker = (options) ->
     tabs.picked.show().html(list)
     tabs.tree.hide()
     tabs.search.hide()
+    modal.attr('data-mode', 'picked')
 
     initializeNodeList(list)
 
@@ -239,12 +263,14 @@ $.fn.treePicker = (options) ->
         unpickNode(node)
 
   pickNode = (node) ->
+    config.picked = null
     id = node.attr('data-id')
     picked.push(id: id, name: node.attr('data-name'))
     updatePickedIds()
     $(".node[data-id=#{id}]", modal).addClass('picked')
 
   unpickNode = (node) ->
+    config.picked = null
     id = node.attr('data-id')
     picked = picked.filter((n) -> "#{n.id}" != "#{id}")
     updatePickedIds()
@@ -255,7 +281,6 @@ $.fn.treePicker = (options) ->
 
   updatePickedIds = ->
     widget.attr('data-picked-ids', picked.map((n) -> n.id))
-    widget.html(config.displayFormat(picked))
     if picked.length
       count.closest('.item').addClass('highlighted')
       count.html("(#{picked.length})")

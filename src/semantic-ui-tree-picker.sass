@@ -93,4 +93,31 @@
       }
     }
   }
+  .actions {
+    .pick-search, .unpick-search, .unpick-picked {
+      color: #2b9289;
+      cursor: pointer;
+      float: left;
+      display: none;
+      margin-top: 8px;
+      margin-right: 25px;
+    }
+    .unpick-search, .unpick-picked {
+      color: #932b53;
+    }
+  }
+  &[data-mode="search"] {
+    .actions {
+      .pick-search, .unpick-search {
+        display: inline-block;
+      }
+    }
+  }
+  &[data-mode="picked"] {
+    .actions {
+      .unpick-picked {
+        display: inline-block;
+      }
+    }
+  }
 }

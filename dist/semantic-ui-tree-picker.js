@@ -1,11 +1,11 @@
 (function() {
   $.fn.treePicker = function(options) {
-    var config, count, initialize, initializeNodeList, initializeNodes, loadNodes, modal, nodeClicked, nodeIsPicked, nodes, pickNode, picked, recursiveNodeSearch, renderList, renderTree, showPicked, showSearch, showTree, tabs, unpickNode, updatePickedIds, updatePickedNodes, widget;
+    var actionButtons, config, count, initialize, initializeNodeList, initializeNodes, loadNodes, modal, nodeClicked, nodeIsPicked, nodes, pickNode, picked, recursiveNodeSearch, renderList, renderTree, showPicked, showSearch, showTree, tabs, unpickNode, updatePickedIds, updatePickedNodes, widget;
     widget = $(this);
     picked = [];
     nodes = [];
     tabs = {};
-    modal = $("<div class=\"ui tree-picker modal\">\n  <i class=\"close icon\"></i>\n  <div class=\"header\">\n    " + options.name + "\n\n    <div class=\"ui menu\">\n      <a class=\"active tree item\">\n        <i class=\"list icon\"></i> Выбрать\n      </a>\n      <a class=\"picked item\">\n        <i class=\"checkmark icon\"></i> Выбранные <span class=\"count\"></span>\n      </a>\n    </div>\n  </div>\n  <div class=\"ui search form\">\n    <div class=\"field\">\n      <div class=\"ui icon input\">\n        <input type=\"text\" placeholder=\"Поиск\">\n        <i class=\"search icon\"></i>\n      </div>\n    </div>\n  </div>\n  <div class=\"content\">\n    <div class=\"ui active inverted dimmer\"><div class=\"ui text loader\">Loading data</div></div>\n    <div class=\"tree-tab\">\n      <div style=\"height: 400px\"></div>\n    </div>\n\n    <div class=\"search-tab\">\n    </div>\n\n    <div class=\"picked-tab\">\n    </div>\n  </div>\n  <div class=\"actions\">\n    <a class=\"ui blue button accept\">Accept</a>\n    <a class=\"ui button close\">Close</a>\n  </div>\n</div>").modal({
+    modal = $("<div class=\"ui tree-picker modal\">\n  <i class=\"close icon\"></i>\n  <div class=\"header\">\n    " + options.name + "\n\n    <div class=\"ui menu\">\n      <a class=\"active tree item\">\n        <i class=\"list icon\"></i> Выбрать\n      </a>\n      <a class=\"picked item\">\n        <i class=\"checkmark icon\"></i> Выбранные <span class=\"count\"></span>\n      </a>\n    </div>\n  </div>\n  <div class=\"ui search form\">\n    <div class=\"field\">\n      <div class=\"ui icon input\">\n        <input type=\"text\" placeholder=\"Поиск\">\n        <i class=\"search icon\"></i>\n      </div>\n    </div>\n  </div>\n  <div class=\"content\">\n    <div class=\"ui active inverted dimmer\"><div class=\"ui text loader\">Loading data</div></div>\n    <div class=\"tree-tab\">\n      <div style=\"height: 400px\"></div>\n    </div>\n\n    <div class=\"search-tab\">\n    </div>\n\n    <div class=\"picked-tab\">\n    </div>\n  </div>\n  <div class=\"actions\">\n    <a class=\"pick-search\"><i class=\"checkmark icon\"></i> Выбрать все</a>\n    <a class=\"unpick-search\"><i class=\"remove icon\"></i> Убрать все</a>\n    <a class=\"unpick-picked\"><i class=\"remove icon\"></i> Убрать все</a>\n    <a class=\"ui blue button accept\">Принять</a>\n    <a class=\"ui button close\">Отмена</a>\n  </div>\n</div>").modal({
       duration: 200
     });
     count = $('.count', modal);
@@ -13,6 +13,11 @@
       tree: $('.tree-tab', modal),
       search: $('.search-tab', modal),
       picked: $('.picked-tab', modal)
+    };
+    actionButtons = {
+      pickSearch: $('.actions .pick-search', modal),
+      unpickSearch: $('.actions .unpick-search', modal),
+      unpickPicked: $('.actions .unpick-picked', modal)
     };
     config = {
       childrenKey: 'nodes',
@@ -49,22 +54,32 @@
       widget.on('click', function(e) {
         modal.modal('show');
         if (!nodes.length) {
-          $('.ui.active.dimmer', modal).removeClass('active');
           if (config.url) {
-            loadNodes(config.url, {}, function(nodes) {
+            return loadNodes(config.url, {}, function(nodes) {
+              $('.ui.active.dimmer', modal).removeClass('active');
               return initializeNodes(nodes);
             });
           }
-          if (nodes.length) {
-            return initializeNodes(nodes);
-          }
+        } else {
+          $('.ui.active.dimmer', modal).removeClass('active');
+          return initializeNodes(nodes);
         }
       });
       $('.actions .accept', modal).on('click', function(e) {
         modal.modal('close');
         if (config.onSubmit) {
-          return config.onSubmit(picked);
+          config.onSubmit(picked);
         }
+        return widget.html(config.displayFormat(picked));
+      });
+      actionButtons.pickSearch.on('click', function(e) {
+        return $('.search-tab .node:not(.picked) .name').trigger('click');
+      });
+      actionButtons.unpickSearch.on('click', function(e) {
+        return $('.search-tab .node.picked .name').trigger('click');
+      });
+      actionButtons.unpickPicked.on('click', function(e) {
+        return $('.picked-tab .node.picked .name').trigger('click');
       });
       $('.menu .tree', modal).on('click', function(e) {
         return showTree();
@@ -124,7 +139,8 @@
       $('.menu .tree', modal).addClass('active');
       tabs.tree.show();
       tabs.search.hide();
-      return tabs.picked.hide();
+      tabs.picked.hide();
+      return modal.attr('data-mode', 'tree');
     };
     showSearch = function(query) {
       var foundNodes, list;
@@ -140,6 +156,7 @@
         tabs.search.show().html(list);
         tabs.tree.hide();
         tabs.picked.hide();
+        modal.attr('data-mode', 'search');
         initializeNodeList(list);
         return $('.name', list).each(function() {
           var name, regex;
@@ -163,6 +180,7 @@
       tabs.picked.show().html(list);
       tabs.tree.hide();
       tabs.search.hide();
+      modal.attr('data-mode', 'picked');
       return initializeNodeList(list);
     };
     renderTree = function(nodes, css) {
@@ -243,6 +261,7 @@
     };
     pickNode = function(node) {
       var id;
+      config.picked = null;
       id = node.attr('data-id');
       picked.push({
         id: id,
@@ -253,6 +272,7 @@
     };
     unpickNode = function(node) {
       var id;
+      config.picked = null;
       id = node.attr('data-id');
       picked = picked.filter(function(n) {
         return ("" + n.id) !== ("" + id);
@@ -269,7 +289,6 @@
       widget.attr('data-picked-ids', picked.map(function(n) {
         return n.id;
       }));
-      widget.html(config.displayFormat(picked));
       if (picked.length) {
         count.closest('.item').addClass('highlighted');
         return count.html("(" + picked.length + ")");
