@@ -51,6 +51,7 @@ $.fn.treePicker = (options) ->
     picked: $('.picked-tab', modal)
 
   config = {
+    childrenKey: 'nodes'
     singlePick: false
     minSearchQueryLength: 3
     hidden: (node) -> false
@@ -169,8 +170,8 @@ $.fn.treePicker = (options) ->
       if config.disabled(node)
         nodeElement.addClass('disabled')
 
-      if node.nodes and node.nodes.length
-        $('.content', nodeElement).append(renderTree(node.nodes))
+      if node[config.childrenKey] and node[config.childrenKey].length
+        $('.content', nodeElement).append(renderTree(node[config.childrenKey]))
       else
         nodeElement.addClass("childless")
     tree
@@ -259,8 +260,8 @@ $.fn.treePicker = (options) ->
     for node in nodes
       if comparator(node)
         results.push(id: node.id, name: node.name)
-      if node.nodes and node.nodes.length
-        results = results.concat(recursiveNodeSearch(node.nodes, comparator))
+      if node[config.childrenKey] and node[config.childrenKey].length
+        results = results.concat(recursiveNodeSearch(node[config.childrenKey], comparator))
 
     results
 

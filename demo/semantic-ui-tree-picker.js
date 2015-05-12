@@ -15,6 +15,7 @@
       picked: $('.picked-tab', modal)
     };
     config = {
+      childrenKey: 'nodes',
       singlePick: false,
       minSearchQueryLength: 3,
       hidden: function(node) {
@@ -164,8 +165,8 @@
         if (config.disabled(node)) {
           nodeElement.addClass('disabled');
         }
-        if (node.nodes && node.nodes.length) {
-          $('.content', nodeElement).append(renderTree(node.nodes));
+        if (node[config.childrenKey] && node[config.childrenKey].length) {
+          $('.content', nodeElement).append(renderTree(node[config.childrenKey]));
         } else {
           nodeElement.addClass("childless");
         }
@@ -273,8 +274,8 @@
             name: node.name
           });
         }
-        if (node.nodes && node.nodes.length) {
-          results = results.concat(recursiveNodeSearch(node.nodes, comparator));
+        if (node[config.childrenKey] && node[config.childrenKey].length) {
+          results = results.concat(recursiveNodeSearch(node[config.childrenKey], comparator));
         }
       }
       return results;
